@@ -1,0 +1,9 @@
+{
+  "name": "ComfyUI-TRELLIS2-GLB-Encoder",
+  "version": "1.0.0",
+  "display_name": "TRELLIS 2 GLB -> Shape Latent + Mesh",
+  "license": "MIT",
+  "author": "Mostafa Awad",
+  "entrypoint": "__init__.py",
+  "notes": "Requires a working TRELLIS.2 + O-Voxel environment in the same ComfyUI Python runtime."
+}
