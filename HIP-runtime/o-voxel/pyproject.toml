@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "o_voxel"
+version = "0.0.1+hip"
+description = "Native HIP voxel conversion for the Trellis2 mesh encoder"
+requires-python = ">=3.12"
+authors = [{name = "Jianfeng Xiang", email = "belljig@outlook.com"}]
+dependencies = ["numpy", "trimesh"]

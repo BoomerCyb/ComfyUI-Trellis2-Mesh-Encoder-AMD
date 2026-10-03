@@ -2,6 +2,7 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 set "PYTHON="
+if exist "%~dp0..\..\python_env\python.exe" set "PYTHON=%~dp0..\..\python_env\python.exe"
 if exist "%~dp0..\..\python_embeded\python.exe" set "PYTHON=%~dp0..\..\python_embeded\python.exe"
 if not defined PYTHON if exist "%~dp0..\..\venv\Scripts\python.exe" set "PYTHON=%~dp0..\..\venv\Scripts\python.exe"
 if not defined PYTHON if exist "%~dp0..\..\python.exe" set "PYTHON=%~dp0..\..\python.exe"
@@ -15,7 +16,7 @@ if not defined PYTHON (
 echo Using: %PYTHON%
 echo.
 %PYTHON% -c "import sys; print('Python:', sys.version)"
-%PYTHON% -c "import torch; print('PyTorch:', torch.__version__); print('CUDA available:', torch.cuda.is_available()); print('CUDA:', torch.version.cuda)"
+%PYTHON% -c "import torch; print('PyTorch:', torch.__version__); print('GPU available:', torch.cuda.is_available()); print('HIP:', torch.version.hip)"
 %PYTHON% -c "import folder_paths; print('ComfyUI folder_paths: OK')"
 %PYTHON% -c "import comfy.model_management; from comfy_api.latest import Types; print('ComfyUI APIs: OK')"
 %PYTHON% -c "import numpy, trimesh, safetensors; print('Direct deps: OK')"

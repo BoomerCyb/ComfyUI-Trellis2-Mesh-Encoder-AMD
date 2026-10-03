@@ -119,7 +119,7 @@ def _load_shape_encoder(path):
 
         print(f"[TRELLIS2 GLB Encoder] Loading weights from {path}")
         state_dict = load_safetensors(path, device="cpu")
-        encoder.load_state_dict(state_dict, strict=False)
+        encoder.load_state_dict(state_dict, strict=True)
 
     except Exception as e:
         traceback.print_exc()
@@ -250,7 +250,10 @@ def _make_latent(shape_slat, resolution):
 
 def _make_subdivides(shape_slat, vae, resolution):
     device = comfy.model_management.get_torch_device()
-    SparseTensor = _get_sparse_tensor_class()
+    if type(vae.first_stage_model).__module__.startswith("comfy."):
+        from comfy.ldm.trellis2.vae import SparseTensor
+    else:
+        SparseTensor = _get_sparse_tensor_class()
 
     raw = SparseTensor(
         feats=shape_slat.feats.to(device),

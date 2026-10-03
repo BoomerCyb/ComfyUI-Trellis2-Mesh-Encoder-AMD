@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-This repository contains the custom-node source code for **ComfyUI-TRELLIS2-Mesh-Encoder**. The third-party components below are **not bundled with this repository**; they are expected to be installed separately or supplied by the existing ComfyUI/TRELLIS.2 environment.
+This repository contains the custom-node source code for **ComfyUI-TRELLIS2-Mesh-Encoder**. The AMD branch bundles selected TRELLIS.2 encoder runtime and O-Voxel source, Eigen headers and AMD development headers. Other dependencies are installed separately or supplied by ComfyUI.
 
 The license descriptions below are intended to make the dependency boundaries clear. Always consult the official upstream license before redistributing third-party software.
 
@@ -12,7 +12,7 @@ The license descriptions below are intended to make the dependency boundaries cl
 **License text:** https://github.com/microsoft/TRELLIS.2/blob/main/LICENSE  
 **O-Voxel:** https://github.com/microsoft/TRELLIS.2/tree/main/o-voxel
 
-The node imports TRELLIS.2 and O-Voxel APIs but does not bundle the upstream repository in this package.
+Selected encoder runtime and O-Voxel sources are bundled in `HIP-runtime/`. Microsoft attribution and license are retained in `HIP-runtime/LICENSE.TRELLIS2`.
 
 Microsoft currently describes TRELLIS.2 as MIT licensed and separately notes that some optional dependencies used by the full project have their own licenses.
 
@@ -87,3 +87,7 @@ The direct Python dependencies used by the node are permissively licensed as ide
 A complete environment may additionally contain ComfyUI, PyTorch third-party components, CUDA/NVIDIA software, model weights, and other packages with separate terms. Those components are **not automatically covered by this repository's MIT license**.
 
 For a commercial redistribution of the complete environment, audit the exact packages and versions that you ship.
+
+## Bundled AMD headers
+
+`HIP-runtime/o-voxel/third_party/amd/` contains hipCUB, rocPRIM and rocThrust headers from rocm-7.0.0 with their upstream licenses. Eigen notices remain in `HIP-runtime/o-voxel/third_party/eigen/`. Optional training, rendering and generation paths are excluded and were not validated.
