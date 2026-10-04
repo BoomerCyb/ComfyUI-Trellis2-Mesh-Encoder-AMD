@@ -153,6 +153,11 @@ This README is a practical software-licensing summary, not legal advice. Third-p
 
 ## AMD Edition Changes - 2026-10-03
 
+O-Voxel sources use HIP with Windows C++ compatibility fixes. The encoder
+uses ComfyUI sparse convolution and compatible VAE tensors. Model weights are
+loaded strictly. Full image-generation and rendering pipelines are outside
+this mesh-encoder port.
+
 - Uses ComfyUI's Python and reports installation failures before restarting.
 - Builds native HIP extensions for the active ROCm environment; matching HIP SDK and Visual Studio C++ Build Tools are required.
 - Supports group installation through [ComfyUI-Easy-Install-AMD](https://github.com/BoomerCyb/ComfyUI-Easy-Install-AMD).
