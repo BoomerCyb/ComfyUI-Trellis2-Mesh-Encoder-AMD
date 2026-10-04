@@ -2,6 +2,8 @@
 
 ## AMD / ROCm
 
+The installer uses ComfyUI's Python and stops if setup fails. When installing through EZi, wait for the entire node group to complete before restarting.
+
 This fork keeps the original node interface and adds native HIP support.
 Use the ROCm PyTorch installation that runs ComfyUI and a matching HIP SDK.
 The source does not select a card model or impose a gfx1201 target. Native
@@ -14,12 +16,8 @@ Hardware support depends on ROCm/PyTorch; validation here covers RX 9070 XT.
 Run `install_requirements.bat` with ComfyUI closed to build/install the native components.
 For prerequisites and manual commands, see [COMFYUI_ROCM_BUILD_GUIDE.md](COMFYUI_ROCM_BUILD_GUIDE.md).
 
-ComfyUI ROCm setup: [patientx-cfz/comfyui-rocm](https://github.com/patientx-cfz/comfyui-rocm).
+ComfyUI AMD installer: [BoomerCyb/ComfyUI-Easy-Install-AMD](https://github.com/BoomerCyb/ComfyUI-Easy-Install-AMD).
 
-The original documentation follows. For AMD installation, use the instructions
-above and the ROCm build guide in place of the original CUDA installation steps.
-
-# ComfyUI-TRELLIS2-Mesh-Encoder
 
 A lightweight ComfyUI custom node for taking an existing GLB mesh, converting it into the **TRELLIS.2 O-Voxel Flexible Dual Grid** representation, encoding its shape into a **TRELLIS.2 Shape SLAT**, and returning ComfyUI-compatible outputs for downstream 3D workflows.
 
@@ -61,22 +59,13 @@ The node expects these components to already exist in the same Python environmen
 - trimesh
 - safetensors
 
-### Important
+## Installation
 
-`install.bat` installs only the small Python dependencies listed in `requirements.txt`. It does **not** install TRELLIS.2, O-Voxel, ComfyUI, PyTorch, CUDA, or model weights.
+1. Place this repository in `ComfyUI/custom_nodes/ComfyUI-Trellis2-Mesh-Encoder-AMD`.
+2. Close ComfyUI and run `install_requirements.bat` using ComfyUI's Python.
+3. Restart ComfyUI after installation completes. With the EZi group add-on, wait for all five nodes to finish.
 
-## Windows installation
-
-### ComfyUI Portable
-
-1. Extract this folder to:
-   `ComfyUI\\custom_nodes\\ComfyUI-Trellis2-Mesh-Encoder`
-2. Run `install.bat`.
-3. Make sure a working TRELLIS.2 + O-Voxel installation is available to the same ComfyUI Python environment.
-4. Restart ComfyUI.
-5. Run `check_install.bat` to verify the environment.
-
-The installer checks common ComfyUI Portable / venv layouts before falling back to `py` or `python` on `PATH`.
+You can also install this node through **Easy Menu → Add-ons → BoomerCyb WTiVo AMD Nodes** in [ComfyUI-Easy-Install-AMD](https://github.com/BoomerCyb/ComfyUI-Easy-Install-AMD).
 
 ## Model files
 
@@ -153,45 +142,15 @@ Do not redistribute those external components under this project's MIT license.
 - **safetensors License:** https://github.com/huggingface/safetensors/blob/main/LICENSE
 - **PyTorch:** https://github.com/pytorch/pytorch
 - **PyTorch licensing information:** https://github.com/pytorch/pytorch/blob/main/LICENSE
-- **NVIDIA CUDA:** https://www.nvidia.com/en-us/drivers/
 
 ## Disclaimer
 
 This README is a practical software-licensing summary, not legal advice. Third-party licenses and terms should be reviewed before redistributing a complete bundled runtime, installer, Docker image, or model package.
 
+## AMD Edition Changes - 2026-10-03
 
+- Uses ComfyUI's Python and reports installation failures before restarting.
+- Builds native HIP extensions for the active ROCm environment; matching HIP SDK and Visual Studio C++ Build Tools are required.
+- Supports group installation through [ComfyUI-Easy-Install-AMD](https://github.com/BoomerCyb/ComfyUI-Easy-Install-AMD).
 
-## 🚀 SUPPORT MOSTAADTECH
-
-### ❤️ Enjoying this project / workflow?
-
-I’m **MostAadTech**, I create FREE ComfyUI workflows, local AI tools, 3D pipelines, and open-source projects.
-
-If this project or workflow helped you, **please consider following me or supporting my work**. It helps me keep building, testing, and releasing more free tools and workflows.
-
----
-
-## 💜 Support Me on Patreon
-
-👉 **[Support MostAadTech on Patreon](https://www.patreon.com/cw/MostafaAwad/membership)**
-
-Your support helps me spend more time developing **FREE AI tools, ComfyUI workflows, and 3D pipelines**.
-
----
-
-## 🌐 Follow MostAadTech
-
-* ▶️ **[YouTube](https://www.youtube.com/@MostAadTech)** — Tutorials, workflows & AI projects
-* 📸 **[Instagram](https://www.instagram.com/mostaadtech/)** — Projects, updates & behind the scenes
-* 𝕏 **[X / Twitter](https://x.com/MostAadTech)** — Updates, releases & experiments
-* 💻 **[GitHub](https://github.com/Mstafa-awad)** — Open-source projects & code
-
----
-
-### ⭐ One Follow Helps
-
-**Follow • Star • Share • Support**
-
-Every follow, GitHub star, share, and Patreon supporter helps me continue making **FREE tools for the AI community.**
-
-**Thank you for supporting MostAadTech! ❤️**
+Original node by [Mstafa-awad / MostAadTech](https://github.com/Mstafa-awad). AMD fork maintained by [BoomerCyb](https://github.com/BoomerCyb). Original license and third-party credits are retained.
