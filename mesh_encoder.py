@@ -6,6 +6,7 @@ import torch
 import trimesh
 import folder_paths
 import comfy.model_management
+import comfy.model_patcher
 from comfy_api.latest import Types
 import comfy.latent_formats
 
@@ -21,6 +22,8 @@ except Exception:
     load_safetensors = None
 
 _ENCODER_CACHE = {}
+# Peak encoder activation memory per surface voxel (measured on gfx1201, with margin).
+ENCODER_BYTES_PER_VOXEL = 1600
 
 def _get_sparse_tensor_class():
     try:
@@ -70,6 +73,15 @@ def _resolve_encoder_path(value):
         "Could not locate shape encoder safetensors file. Searched candidates:\n"
         + "\n".join(f"  - {c}" for c in candidates[:6])
     )
+
+class _EncoderHolder(torch.nn.Module):
+    """Container for ComfyUI's ModelPatcher, which assigns `model.device`; the
+    TRELLIS encoder exposes `device` as a read-only property."""
+
+    def __init__(self, encoder):
+        super().__init__()
+        self.encoder = encoder
+
 
 def _load_shape_encoder(path):
     path = os.path.abspath(path)
@@ -126,9 +138,15 @@ def _load_shape_encoder(path):
         raise ImportError(f"Failed to load shape encoder: {e}") from e
 
     encoder.eval()
-    encoder.to(comfy.model_management.get_torch_device())
-    _ENCODER_CACHE[path] = encoder
-    return encoder
+    # Let ComfyUI's model management load, offload and unload the encoder like
+    # its own models, instead of pinning it in VRAM for the whole session.
+    patcher = comfy.model_patcher.CoreModelPatcher(
+        _EncoderHolder(encoder),
+        load_device=comfy.model_management.get_torch_device(),
+        offload_device=comfy.model_management.unet_offload_device(),
+    )
+    _ENCODER_CACHE[path] = patcher
+    return patcher
 
 def _load_mesh(path):
     asset = trimesh.load(path, force="scene", process=False)
@@ -178,7 +196,7 @@ def _preprocess_mesh(mesh):
     )
     return work_mesh, normalized_yup
 
-def _encode_shape_slat(mesh, resolution, encoder):
+def _encode_shape_slat(mesh, resolution, encoder_patcher):
     if o_voxel is None:
         raise ImportError(
             "o_voxel is not available in this ComfyUI environment."
@@ -201,6 +219,15 @@ def _encode_shape_slat(mesh, resolution, encoder):
             timing=True,
         )
     )
+
+    # Ask ComfyUI to make room for the encoder and its activations, which scale
+    # with the number of surface voxels, before anything is moved to the GPU.
+    comfy.model_management.load_models_gpu(
+        [encoder_patcher],
+        memory_required=int(voxel_indices.shape[0]) * ENCODER_BYTES_PER_VOXEL,
+        force_full_load=True,
+    )
+    encoder = encoder_patcher.model.encoder
 
     device = comfy.model_management.get_torch_device()
     coords = torch.cat(
@@ -322,10 +349,10 @@ class Trellis2MeshEncoder:
             )
 
             encoder_path = _resolve_encoder_path(shape_encoder)
-            encoder = _load_shape_encoder(encoder_path)
+            encoder_patcher = _load_shape_encoder(encoder_path)
 
             shape_slat = _encode_shape_slat(
-                work_mesh, int(resolution), encoder
+                work_mesh, int(resolution), encoder_patcher
             )
 
             shape_latent = _make_latent(shape_slat, int(resolution))
