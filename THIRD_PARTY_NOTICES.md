@@ -88,6 +88,6 @@ A complete environment may additionally contain ComfyUI, PyTorch third-party com
 
 For a commercial redistribution of the complete environment, audit the exact packages and versions that you ship.
 
-## Bundled AMD headers
+## Bundled third-party headers
 
-`HIP-runtime/o-voxel/third_party/amd/` contains hipCUB, rocPRIM and rocThrust headers from rocm-7.0.0 with their upstream licenses. Eigen notices remain in `HIP-runtime/o-voxel/third_party/eigen/`. Optional training, rendering and generation paths are excluded and were not validated.
+O-Voxel does not use hipCUB, rocPRIM or rocThrust, so no AMD headers are bundled. Eigen notices remain in `HIP-runtime/o-voxel/third_party/eigen/`. Optional training, rendering and generation paths are excluded and were not validated.

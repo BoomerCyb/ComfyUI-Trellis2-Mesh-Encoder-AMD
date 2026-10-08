@@ -10,11 +10,44 @@ import comfy.model_patcher
 from comfy_api.latest import Types
 import comfy.latent_formats
 
-try:
-    import o_voxel
-except Exception as e:
+_REBUILD_HINT = " Run install_requirements.bat in this node's folder, then restart ComfyUI."
+
+
+def _o_voxel_build_problem():
+    """Why the installed o_voxel cannot be loaded safely, or None.
+
+    Read before importing: a native module built for another PyTorch can crash
+    the process instead of raising an ImportError.
+    """
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.find_spec("o_voxel")
+    if spec is None or not spec.origin:
+        return None
+    try:
+        built = json.loads((Path(spec.origin).parent / "_build_info.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None  # built before build records existed
+    if built.get("torch") and built["torch"] != torch.__version__:
+        return f"o_voxel was built for PyTorch {built['torch']}, but ComfyUI now runs {torch.__version__}." + _REBUILD_HINT
+    architectures = [arch for arch in built.get("architectures", "").split(";") if arch]
+    if architectures and torch.cuda.is_available():
+        current = torch.cuda.get_device_properties(torch.cuda.current_device()).gcnArchName.split(":")[0]
+        if current not in architectures:
+            return f"o_voxel was built for {', '.join(architectures)}, but this GPU is {current}." + _REBUILD_HINT
+    return None
+
+
+_problem = _o_voxel_build_problem()
+if _problem:
     o_voxel = None
-    _OVOXEL_IMPORT_ERROR = e
+    _OVOXEL_IMPORT_ERROR = RuntimeError(_problem)
+else:
+    try:
+        import o_voxel
+    except Exception as e:
+        o_voxel = None
+        _OVOXEL_IMPORT_ERROR = e
 
 try:
     from safetensors.torch import load_file as load_safetensors
@@ -199,7 +232,8 @@ def _preprocess_mesh(mesh):
 def _encode_shape_slat(mesh, resolution, encoder_patcher):
     if o_voxel is None:
         raise ImportError(
-            "o_voxel is not available in this ComfyUI environment."
+            f"o_voxel is not available in this ComfyUI environment: {_OVOXEL_IMPORT_ERROR}"
+            + ("" if isinstance(_OVOXEL_IMPORT_ERROR, RuntimeError) else _REBUILD_HINT)
         ) from _OVOXEL_IMPORT_ERROR
 
     SparseTensor = _get_sparse_tensor_class()
